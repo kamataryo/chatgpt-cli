@@ -1,2 +1,3 @@
 export OPENAI_ORGANIZATION_ID=org-aaa
 export OPENAI_SECRET_KEY=sk-bbb
+export OPENAI_CHATGPT_MODEL=gpt-3.5-turbo  # Optional
