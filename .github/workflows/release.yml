@@ -2,8 +2,7 @@ name: Release
 
 on:
   push:
-    branch:
-      - "main"
+    tags: [*]
 
 jobs:
   build:
@@ -54,7 +53,7 @@ jobs:
       with:
         draft: false
         prerelease: false
-        tag_name: latest
+        tag_name: ${{ github.ref }}
         release_name: Release ${{ github.ref }}
         body: the build binaries
       env:
