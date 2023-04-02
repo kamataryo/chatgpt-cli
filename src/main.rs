@@ -1,9 +1,8 @@
-use std::io::Write;
-use clap::Parser;
+use std::io::{self, Write, Read};
 use tokio::runtime::Runtime;
 use whoami;
 use ansi_term::Colour::{Green, Cyan};
-
+use std::process;
 use std::thread;
 use std::time;
 use tokio::sync::oneshot;
@@ -14,23 +13,22 @@ use crate::credential::parse_credentials;
 mod ask;
 use crate::ask::ask;
 
-#[derive(Parser, Debug)]
-struct Args {
-  question: String,
-}
-
 fn main() {
 
-  let credential = parse_credentials();
+  let mut question = String::new();
+  io::stdin().read_to_string(&mut question).unwrap();
 
-  let args = Args::parse();
-  let question = args.question.as_str();
+  if question.is_empty() {
+    eprintln!("No questions. Process will exit.");
+    process::exit(0);
+  }
+  question = question.trim_end_matches('\n').to_string();
 
   println!("{} >> {}", Green.paint(whoami::username()), question);
 
   let (stop_signal_tx, stop_signal_rx) = oneshot::channel();
   let handle = thread::spawn(move || show_loading(stop_signal_rx));
-  let future = ask(question, credential.clone());
+  let future = ask(&question, parse_credentials().clone());
   let rt = Runtime::new().unwrap();
   let result = rt.block_on(future);
   stop_signal_tx.send(()).unwrap();
@@ -39,8 +37,13 @@ fn main() {
 
   match result {
     Ok(answer) => println!("{} << {}", Cyan.paint(answer.role), answer.content),
-    Err(err) => {},
+    Err(err) => {
+      eprintln!("{}", err);
+      process::exit(1);
+    },
   }
+
+  process::exit(0);
 }
 
 fn show_loading(mut stop_signal_rx: tokio::sync::oneshot::Receiver<()>) {

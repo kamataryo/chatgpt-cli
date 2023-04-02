@@ -38,7 +38,7 @@ pub fn parse_credentials() -> Credential {
     if !current_config_path.exists() {
       if config_dir == Path::new("/") {
         eprintln!("Application error. Credential can not be loaded.");
-        process::exit(1);
+        process::exit(11);
       } else {
         config_dir.pop();
       }
@@ -56,7 +56,7 @@ pub fn parse_credentials() -> Credential {
     Ok(content) => {
       if content.len() == 0 {
         eprintln!("Application error: Invalid yaml format for {:?}.", config_path.to_str());
-        process::exit(2);
+        process::exit(12);
       } else {
         let yaml_doc = &content[0];
         let current_org_id = &yaml_doc["openai_organization_id"].as_str();
@@ -74,7 +74,7 @@ pub fn parse_credentials() -> Credential {
         ) {
           if _organization_id.is_empty() && _secret_key.is_empty() {
               eprintln!("Application error: Invalid yaml format for {:?}.", config_path.to_str().unwrap());
-              process::exit(3)
+              process::exit(13)
           } else {
             if openai_organization_id.is_empty() {
               openai_organization_id = _organization_id.to_string();
@@ -92,13 +92,13 @@ pub fn parse_credentials() -> Credential {
           };
         } else {
           eprintln!("Application error: Missing openai_organization_id or openai_secret_key in the yaml file for {:?}.", config_path.to_str().unwrap());
-          process::exit(4);
+          process::exit(14);
         };
       }
     }
     Err(_err) => {
       eprintln!("{:?}", _err);
-      process::exit(5);
+      process::exit(15);
     }
   };
 }
