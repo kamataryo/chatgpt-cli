@@ -1,0 +1,2 @@
+export OPENAI_ORGANIZATION_ID=org-aaa
+export OPENAI_SECRET_KEY=sk-bbb
