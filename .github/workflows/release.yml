@@ -11,8 +11,8 @@ jobs:
     strategy:
       matrix:
         env:
-          - { os: macos-latest, target: x86_64-apple-darwin, postfix: '' }
           - { os: ubuntu-latest, target: x86_64-unknown-linux-gnu, postfix: '' }
+          - { os: macos-latest, target: x86_64-apple-darwin, postfix: '' }
           - { os: windows-latest, target: x86_64-pc-windows-msvc, postfix: '.exe' }
 
     steps:
@@ -35,12 +35,12 @@ jobs:
         command: build
         args: --target ${{ matrix.env.target }} --release
 
-    - run: mv target/${{ matrix.env.target }}/release/chatgpt-cli${{matrix.env.postfix}} ./chatgpt-cli_${{ matrix.env.target }}${{ matrix.env.postfix }}
+    - run: mv target/${{ matrix.env.target }}/release/chatgpt-cli${{matrix.env.postfix}}
     - name: Upload artifacts
       uses: actions/upload-artifact@v3
       with:
-        name: binary-${{ matrix.env-target }}
-        path: ./chatgpt-cli_${{ matrix.env.target }}${{ matrix.env.postfix }}
+        name: binary_${{ matrix.env.target }}
+        path: target/${{ matrix.env.target }}/release/chatgpt-cli${{matrix.env.postfix}}
 
   release:
     needs: build
@@ -49,31 +49,45 @@ jobs:
     - name: Download all artifacts
       uses: actions/download-artifact@v3
 
-    - name: Combine artifacts
-      run: |
-        mkdir -p all
-        for artifact in binary-*; do
-          cp -R "$artifact" all/
-        done
-
     - run: ls -la all
-    # - name: Create Release
-    #   id: create_release
-    #   uses: actions/create-release@v1
-    #   env:
-    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    #   with:
-    #     tag_name: latest
-    #     release_name: Release ${{ github.ref }}
-    #     draft: false
-    #     prerelease: false
 
-    # - name: Upload Release Asset
-    #   uses: actions/upload-release-asset@v1
-    #   env:
-    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    #   with:
-    #     upload_url: ${{ steps.create_release.outputs.upload_url }}
-    #     asset_path: ./combined/binary-${{ matrix.config.os }}.${{ matrix.config.extension }}
-    #     asset_name: binary-${{ matrix.config.os }}.${{ matrix.config.extension }}
-    #     asset_content_type: application/zip
+    - name: release
+      uses: actions/create-release@v1
+      id: create_release
+      with:
+        draft: false
+        prerelease: false
+        release_name: Release ${{ github.ref }}
+        body_path: CHANGELOG.md
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: upload linux artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: binary_x86_64-unknown-linux-gnu/chatgpt-cli
+          asset_name: chatgpt-cli_x86_64-unknown-linux-gnu
+          asset_content_type: application/octet-stream
+
+    - name: upload darwin artifact
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: binary-x86_64-apple-darwin/chatgpt-cli
+        asset_name: chatgpt-cli_x86_64-apple-darwin
+        asset_content_type: application/octet-stream
+
+    - name: upload windows artifact
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: binary-x86_64-pc-windows-msvc/chatgpt-cli.exe
+        asset_name: chatgpt-cli_x86_64-pc-windows-msvc.exe
+        asset_content_type: application/octet-stream
