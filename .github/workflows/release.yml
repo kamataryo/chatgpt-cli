@@ -55,7 +55,7 @@ jobs:
         tag_name: ${{ github.ref }}
         release_name: Release ${{ github.ref }}
         body: |
-          Release created from tag ${GITHUB_REF}.
+          Release created from tag ${{ github.ref }}.
         draft: false
         prerelease: false
       env:

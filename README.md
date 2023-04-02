@@ -31,6 +31,7 @@
 
 ```shell
 $ curl -sL https://github.com/kamataryo/chatgpt-cli/releases/download/v0.1.0/chatgpt-cli_x86_64-unknown-linux-gnu > ./chatgpt-cli
+$ chmod +x ./chatgpt-cli
 ```
 
 ## 使い方
