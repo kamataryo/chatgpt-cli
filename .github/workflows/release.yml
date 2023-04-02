@@ -11,9 +11,9 @@ jobs:
     strategy:
       matrix:
         env:
+          - { os: macos-latest, target: x86_64-apple-darwin, postfix: '' }
           - { os: ubuntu-latest, target: x86_64-unknown-linux-gnu, postfix: '' }
-          - { os: windows-latest, target: x86_64-pc-windows-msvc, postfix: '' }
-          - { os: macos-latest, target: x86_64-apple-darwin, postfix: '.exe' }
+          - { os: windows-latest, target: x86_64-pc-windows-msvc, postfix: '.exe' }
 
     steps:
     - name: Check out repository
