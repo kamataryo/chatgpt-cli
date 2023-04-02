@@ -11,9 +11,9 @@ jobs:
     strategy:
       matrix:
         env:
-          - { os: ubuntu-latest, target: x86_64-unknown-linux-gnu }
-          - { os: windows-latest, target: x86_64-pc-windows-msvc }
-          - { os: macos-latest, target: x86_64-apple-darwin }
+          - { os: ubuntu-latest, target: x86_64-unknown-linux-gnu, postfix: '' }
+          - { os: windows-latest, target: x86_64-pc-windows-msvc, postfix: '' }
+          - { os: macos-latest, target: x86_64-apple-darwin, postfix: '.exe' }
 
     steps:
     - name: Check out repository
@@ -35,4 +35,45 @@ jobs:
         command: build
         args: --target ${{ matrix.env.target }} --release
 
-    - run: mv target/${{ matrix.env.target }}/release/chatgpt-cli ./chatgpt-cli_${{ matrix.env.target }}
+    - run: mv target/${{ matrix.env.target }}/release/chatgpt-cli${{matrix.env.postfix}} ./chatgpt-cli_${{ matrix.env.target }}{{matrix.env.postfix}}
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: binary-${{ matrix.env-target }}
+        path: ./chatgpt-cli_${{ matrix.env.target }}{{matrix.env.postfix}}
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v3
+
+    - name: Combine artifacts
+      run: |
+        mkdir -p all
+        for artifact in binary-*; do
+          cp -R "$artifact" all/
+        done
+
+    - run: ls -la all
+    # - name: Create Release
+    #   id: create_release
+    #   uses: actions/create-release@v1
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #   with:
+    #     tag_name: latest
+    #     release_name: Release ${{ github.ref }}
+    #     draft: false
+    #     prerelease: false
+
+    # - name: Upload Release Asset
+    #   uses: actions/upload-release-asset@v1
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #   with:
+    #     upload_url: ${{ steps.create_release.outputs.upload_url }}
+    #     asset_path: ./combined/binary-${{ matrix.config.os }}.${{ matrix.config.extension }}
+    #     asset_name: binary-${{ matrix.config.os }}.${{ matrix.config.extension }}
+    #     asset_content_type: application/zip
