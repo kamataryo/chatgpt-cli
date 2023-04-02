@@ -1,3 +1,5 @@
+### Please place this file in a directory hierarchy above the working directory.
+
 openai_organization_id: org-aaa
 openai_secret_key: sk-bbb
 openai_chatgpt_model: gpt-3.5-turbo # Optional
