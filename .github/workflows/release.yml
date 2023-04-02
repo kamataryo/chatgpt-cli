@@ -35,7 +35,7 @@ jobs:
         command: build
         args: --target ${{ matrix.env.target }} --release
 
-    - run: "ls target/release"
+    - run: "mv ./chatgpt-cli ./chatgpt-cli-${{ matrix.env.target }}"
 
     - name: Create Release
       uses: marvinpinto/action-automatic-releases@latest
@@ -44,4 +44,4 @@ jobs:
         automatic_release_tag: latest
         prerelease: true
         files: |
-          target/release/chatgpt-cli*
+          ./chatgpt-cli-${{ matrix.env.target }}
