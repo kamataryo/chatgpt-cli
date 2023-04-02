@@ -1,19 +1,19 @@
 # chatgpt-cli
 
-`chatgpt-cli` は、 ChatGPT をラップしたシンプルなコマンドラインインターフェースです。
+`chatgpt-cli` は、 ChatGPT への API アクセスをラップしたシンプルなコマンドラインインターフェースです。
 
 ## ビルド方法
 
 ### Cargo を使ったビルド
 
-1. まず、[Rust](https://www.rust-lang.org/tools/install) をインストールしてください。
-2. 次に、リポジトリをクローンします。
+1. まず、[Rust](https://www.rust-lang.org/tools/install) をインストールしてください
+2. 次に、リポジトリをクローンします
 
   ```shell
-  $ git clone https://github.com/your_username/chatgpt-cli.git
+  $ git clone https://github.com/kamataryo/chatgpt-cli.git
   ```
 
-3. ディレクトリに移動して、Cargo を使ってビルドします。
+3. ディレクトリに移動して、Cargo を使ってビルドします
 　
   ```shell
   $ cd chatgpt-cli
@@ -29,6 +29,10 @@
 
 ダウンロードしたバイナリを実行可能にし、適切なディレクトリに移動して使用してください。
 
+```shell
+$ curl -sL https://github.com/kamataryo/chatgpt-cli/archive/refs/tags/latest.zip > ./chatgpt-cli
+```
+
 ## 使い方
 
 ### API キーの入力
@@ -42,5 +46,5 @@
 
 ```shell
 $ echo "こんにちは。
-お元気ですか？" | chatgpt-cli
+お元気ですか？" | ./chatgpt-cli
 ```

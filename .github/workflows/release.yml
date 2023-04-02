@@ -56,7 +56,7 @@ jobs:
         prerelease: false
         tag_name: latest
         release_name: Release ${{ github.ref }}
-        body_path: CHANGELOG.md
+        body: the build binaries
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
