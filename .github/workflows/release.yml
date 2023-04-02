@@ -54,6 +54,7 @@ jobs:
       with:
         draft: false
         prerelease: false
+        tag_name: latest
         release_name: Release ${{ github.ref }}
         body_path: CHANGELOG.md
       env:
