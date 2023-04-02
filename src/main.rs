@@ -24,7 +24,7 @@ fn main() {
   }
   question = question.trim_end_matches('\n').to_string();
 
-  println!("{} >> {}", Green.paint(whoami::username()), question);
+  eprintln!("{} >> {}", Green.paint(whoami::username()), question);
 
   let (stop_signal_tx, stop_signal_rx) = oneshot::channel();
   let handle = thread::spawn(move || show_loading(stop_signal_rx));
@@ -36,7 +36,10 @@ fn main() {
   handle.join().unwrap();
 
   match result {
-    Ok(answer) => println!("{} << {}", Cyan.paint(answer.role), answer.content),
+    Ok(answer) => {
+      eprint!("{} << ", Cyan.paint(answer.role));
+      println!("{}", answer.content);
+    },
     Err(err) => {
       eprintln!("{}", err);
       process::exit(1);
@@ -58,13 +61,13 @@ fn show_loading(mut stop_signal_rx: tokio::sync::oneshot::Receiver<()>) {
           _ => "...",
       };
 
-      print!("\r{}", message);
+      eprint!("\r{}", message);
       std::io::stdout().flush().unwrap();
       thread::sleep(time::Duration::from_millis(300));
 
       match stop_signal_rx.try_recv() {
         Ok(_) => {
-          print!("\r{}", "\x08\x08\x08");
+          eprint!("\r{}", "\x08\x08\x08");
           break;
         },
         Err(_err) => (),
