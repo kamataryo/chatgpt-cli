@@ -24,13 +24,13 @@
 
 ### バイナリのダウンロード
 
-[GitHub のリリースページ](https://github.com/kamataryo/chatgpt-cli/releases) から、最新バージョンのバイナリをダウンロードできます。  
+[GitHub のリリースページ](https://github.com/kamataryo/chatgpt-cli/releases/latest) から、最新バージョンのバイナリをダウンロードできます。  
 利用可能なプラットフォームに応じて、適切なバイナリを選択してください。
 
 ダウンロードしたバイナリを実行可能にし、適切なディレクトリに移動して使用してください。
 
 ```shell
-$ curl -sL https://github.com/kamataryo/chatgpt-cli/archive/refs/tags/latest.zip > ./chatgpt-cli
+$ curl -sL https://github.com/kamataryo/chatgpt-cli/releases/download/v0.1.0/chatgpt-cli_x86_64-unknown-linux-gnu > ./chatgpt-cli
 ```
 
 ## 使い方
