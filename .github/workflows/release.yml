@@ -6,7 +6,7 @@ on:
       - "main"
 
 jobs:
-  release:
+  build:
     runs-on: ${{ matrix.env.os }}
     strategy:
       matrix:
@@ -35,13 +35,4 @@ jobs:
         command: build
         args: --target ${{ matrix.env.target }} --release
 
-    - run: "ls -la target/release"
-
-    - name: Create Release
-      uses: marvinpinto/action-automatic-releases@latest
-      with:
-        repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        automatic_release_tag: latest
-        prerelease: true
-        files: |
-          ./chatgpt-cli-${{ matrix.env.target }}
+    - run: mv target/${{ matrix.env.target }}/release/chatgpt-cli ./chatgpt-cli_${{ matrix.env.target }}
