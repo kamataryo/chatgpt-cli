@@ -19,15 +19,15 @@ jobs:
     - name: Check out repository
       uses: actions/checkout@v3
 
-    - name: Install Rust
-      uses: actions-rs/toolchain@v1
-      with:
-        profile: minimal
-        toolchain: stable
-        override: true
+    # - name: Install Rust
+    #   uses: actions-rs/toolchain@v1
+    #   with:
+    #     profile: minimal
+    #     toolchain: stable
+    #     override: true
 
-    - name: Set up target
-      run: rustup target add ${{ matrix.env.target }}
+    # - name: Set up target
+    #   run: rustup target add ${{ matrix.env.target }}
 
     # - name: Build release binary
     #   uses: actions-rs/cargo@v1
@@ -35,6 +35,8 @@ jobs:
     #     command: build
     #     args: --target ${{ matrix.env.target }} --release
 
+    - name: mock
+      run: mkdir -p target/${{ matrix.env.target }}/release/
     - name: mock
       run: echo ${{ matrix.env.target }} > target/${{ matrix.env.target }}/release/chatgpt-cli${{matrix.env.postfix}}
 
