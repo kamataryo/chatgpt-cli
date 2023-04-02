@@ -49,3 +49,67 @@ $ chmod +x ./chatgpt-cli
 $ echo "こんにちは。
 お元気ですか？" | ./chatgpt-cli
 ```
+
+### advanced
+
+おもしろそうな使い方のメモです。
+
+#### ChatGPT の対話結果でさらに質問する
+
+```shell
+$ echo "ChatGPTに対する質問を1行で作ってください" | ./chatgpt-cli | ./chatgpt-cli
+```
+
+#### Amazon polly で結果を読み上げる
+
+```shell
+$ aws polly synthesize-speech \
+  --text "$(echo 'Hello!' | ./chatgpt-cli)" \
+  --voice-id Joanna \
+  --output-format mp3 \
+  ./test.mp3 && \
+  afplay ./test.mp3 && \
+  rm ./test.mp3
+```
+
+#### Amazon Transcribe を使って音声入力で質問する
+
+```shell
+# 準備
+$ aws s3 mb s3://kamataryo-sandbox-amazon-transcribe-mp3-bucket
+$ aws s3api put-bucket-policy \
+  --bucket kamataryo-sandbox-amazon-transcribe-mp3-bucket \
+  --policy '{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "Service": "transcribe.amazonaws.com"
+            },
+            "Action": "s3:GetObject",
+            "Resource": "arn:aws:s3:::kamataryo-sandbox-amazon-transcribe-mp3-bucket/*"
+        }
+    ]
+}'
+# 録音 & アップロード
+$ ffmpeg -f avfoundation -i ":2" -t 3 test.mp3
+$ aws s3 cp ./test.mp3 s3://kamataryo-sandbox-amazon-transcribe-mp3-bucket/test.mp3
+$ rm ./test.mp3
+# 文字起こし
+$ aws transcribe start-transcription-job \
+  --transcription-job-name 20230403_kamataryo_test \
+  --media-format mp3 \
+  --language-code ja-JP \
+  --media MediaFileUri=https://s3.amazonaws.com/kamataryo-sandbox-amazon-transcribe-mp3-bucket/test.mp3
+# 結果の取得
+$ TRANSCRIPT=$(
+    curl -sL $(
+      aws transcribe get-transcription-job \
+        --transcription-job-name 20230403_kamataryo_test |
+      jq -r '.TranscriptionJob.Transcript.TranscriptFileUri'
+  ) | jq -r '.results.transcripts[0].transcript'
+)
+# chatGPT に投げる
+$ echo $TRANSCRIPT | ./chatgpt-cli
+```
