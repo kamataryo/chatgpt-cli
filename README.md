@@ -62,23 +62,21 @@ $ echo "ChatGPTに対する質問を1行で作ってください" | ./chatgpt-cl
 
 #### Amazon polly で結果を読み上げる
 
+Amazon Polly の SynthesizeSpeech を実行できるポリシーが必要です。
+また、実行環境に afplay コマンドが必要です。
 ```shell
-$ aws polly synthesize-speech \
-  --text "$(echo 'Hello!' | ./chatgpt-cli)" \
-  --voice-id Joanna \
-  --output-format mp3 \
-  ./test.mp3 && \
-  afplay ./test.mp3 && \
-  rm ./test.mp3
+$ echo 'hello, how are you?' | ./chatgpt-cli | node .nodejs-client/synthesize.mjs
 ```
 
 #### Amazon Transcribe を使って音声入力で質問する
 
+AWS S3 バケツと Amazon Transcribe StartTranscriptJob 及び GetTranscriptJon のポリシーが必要です。
+以下を参考にバケツを作成してください。
+
 ```shell
-# 準備
-$ aws s3 mb s3://kamataryo-sandbox-amazon-transcribe-mp3-bucket
+$ aws s3 mb s3://<YOUR_BUCKET_NAME>
 $ aws s3api put-bucket-policy \
-  --bucket kamataryo-sandbox-amazon-transcribe-mp3-bucket \
+  --bucket <YOUR_BUCKET_NAME> \
   --policy '{
     "Version": "2012-10-17",
     "Statement": [
@@ -88,25 +86,38 @@ $ aws s3api put-bucket-policy \
                 "Service": "transcribe.amazonaws.com"
             },
             "Action": "s3:GetObject",
-            "Resource": "arn:aws:s3:::kamataryo-sandbox-amazon-transcribe-mp3-bucket/*"
+            "Resource": "arn:aws:s3:::<YOUR_BUCKET_NAME>/*"
         }
     ]
 }'
-# 録音 & アップロード
+```
+
+以下は CLI から mp3 音声を作成するコマンドのサンプルです。
+別の手段で tes.mp3 を作成できる場合スキップできます。
+
+```shell
+# デバイスの一覧を出力
+$ ffmpeg -f avfoundation -list_devices true -i ""
+# 録音。私の環境では `:2` がマイクのデバイスの番号だった
 $ ffmpeg -f avfoundation -i ":2" -t 3 test.mp3
-$ aws s3 cp ./test.mp3 s3://kamataryo-sandbox-amazon-transcribe-mp3-bucket/test.mp3
+```
+
+以下は、Amazon Transcribe を使って音声の文字起こしを行い、これを元に ChatGPT と対話を行うサンプルです。
+
+```shell
+$ aws s3 cp ./test.mp3 s3://<YOUR_BUCKET_NAME>/test.mp3
 $ rm ./test.mp3
 # 文字起こし
 $ aws transcribe start-transcription-job \
-  --transcription-job-name 20230403_kamataryo_test \
+  --transcription-job-name 20230403_test \
   --media-format mp3 \
   --language-code ja-JP \
-  --media MediaFileUri=https://s3.amazonaws.com/kamataryo-sandbox-amazon-transcribe-mp3-bucket/test.mp3
+  --media MediaFileUri=https://s3.amazonaws.com/<YOUR_BUCKET_NAME>/test.mp3
 # 結果の取得
 $ TRANSCRIPT=$(
     curl -sL $(
       aws transcribe get-transcription-job \
-        --transcription-job-name 20230403_kamataryo_test |
+        --transcription-job-name 20230403_test |
       jq -r '.TranscriptionJob.Transcript.TranscriptFileUri'
   ) | jq -r '.results.transcripts[0].transcript'
 )
