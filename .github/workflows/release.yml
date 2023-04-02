@@ -29,11 +29,14 @@ jobs:
     - name: Set up target
       run: rustup target add ${{ matrix.env.target }}
 
-    - name: Build release binary
-      uses: actions-rs/cargo@v1
-      with:
-        command: build
-        args: --target ${{ matrix.env.target }} --release
+    # - name: Build release binary
+    #   uses: actions-rs/cargo@v1
+    #   with:
+    #     command: build
+    #     args: --target ${{ matrix.env.target }} --release
+
+    - name: mock
+      run: echo ${{ matrix.env.target }} > target/${{ matrix.env.target }}/release/chatgpt-cli${{matrix.env.postfix}}
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v3
@@ -47,6 +50,8 @@ jobs:
     steps:
     - name: Download all artifacts
       uses: actions/download-artifact@v3
+
+    - run: ls -la
 
     - name: release
       uses: actions/create-release@v1
