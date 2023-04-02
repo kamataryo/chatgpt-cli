@@ -35,7 +35,6 @@ jobs:
         command: build
         args: --target ${{ matrix.env.target }} --release
 
-    - run: mv target/${{ matrix.env.target }}/release/chatgpt-cli${{matrix.env.postfix}}
     - name: Upload artifacts
       uses: actions/upload-artifact@v3
       with:
