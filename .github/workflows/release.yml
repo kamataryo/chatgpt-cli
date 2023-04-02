@@ -33,6 +33,7 @@ jobs:
         command: build
         args: --target ${{ matrix.target }} --release
 
+    - run: "ls target/release"
     - name: Create Release
       uses: marvinpinto/action-automatic-releases@latest
       with:
