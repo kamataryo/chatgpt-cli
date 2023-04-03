@@ -70,7 +70,7 @@ $ echo 'hello, how are you?' | ./chatgpt-cli | node .nodejs-client/synthesize.mj
 
 #### Amazon Transcribe を使って音声入力で質問する
 
-AWS S3 バケツと Amazon Transcribe StartTranscriptJob 及び GetTranscriptJon のポリシーが必要です。
+AWS S3 バケツと Amazon Transcribe StartTranscriptJob 及び GetTranscriptJob のポリシーが必要です。
 以下を参考にバケツを作成してください。
 
 ```shell
@@ -93,7 +93,7 @@ $ aws s3api put-bucket-policy \
 ```
 
 以下は CLI から mp3 音声を作成するコマンドのサンプルです。
-別の手段で tes.mp3 を作成できる場合スキップできます。
+別の手段で test.mp3 を作成できる場合スキップできます。
 
 ```shell
 # デバイスの一覧を出力
