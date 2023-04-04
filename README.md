@@ -64,8 +64,9 @@ $ echo "ChatGPTに対する質問を1行で作ってください" | ./chatgpt-cl
 
 Amazon Polly の SynthesizeSpeech を実行できるポリシーが必要です。
 また、実行環境に afplay コマンドが必要です。
+
 ```shell
-$ echo 'hello, how are you?' | ./chatgpt-cli | node .nodejs-client/synthesize.mjs
+$ echo 'hello, how are you?' | ./chatgpt-cli | node ./nodejs-client/synthesize.mjs
 ```
 
 #### Amazon Transcribe を使って音声入力で質問する
@@ -92,35 +93,14 @@ $ aws s3api put-bucket-policy \
 }'
 ```
 
-以下は CLI から mp3 音声を作成するコマンドのサンプルです。
-別の手段で test.mp3 を作成できる場合スキップできます。
+また、実行可能なパスに [SoX](https://sox.sourceforge.net/) が必要です。Mac の場合は以下のコマンドでインストールできます。
 
 ```shell
-# デバイスの一覧を出力
-$ ffmpeg -f avfoundation -list_devices true -i ""
-# 録音。私の環境では `:2` がマイクのデバイスの番号だった
-$ ffmpeg -f avfoundation -i ":2" -t 3 test.mp3
+$ brew install sox
 ```
 
-以下は、Amazon Transcribe を使って音声の文字起こしを行い、これを元に ChatGPT と対話を行うサンプルです。
-
 ```shell
-$ aws s3 cp ./test.mp3 s3://<YOUR_BUCKET_NAME>/test.mp3
-$ rm ./test.mp3
-# 文字起こし
-$ aws transcribe start-transcription-job \
-  --transcription-job-name 20230403_test \
-  --media-format mp3 \
-  --language-code ja-JP \
-  --media MediaFileUri=https://s3.amazonaws.com/<YOUR_BUCKET_NAME>/test.mp3
-# 結果の取得
-$ TRANSCRIPT=$(
-    curl -sL $(
-      aws transcribe get-transcription-job \
-        --transcription-job-name 20230403_test |
-      jq -r '.TranscriptionJob.Transcript.TranscriptFileUri'
-  ) | jq -r '.results.transcripts[0].transcript'
-)
-# chatGPT に投げる
-$ echo $TRANSCRIPT | ./chatgpt-cli
+$ export AMAZON_TRANSCRIBE_MP3_BUCKET=<YOUR_BUCKET_NAME>
+# 5秒録音ののちテキスト起こし -> ChatGPT に質問
+$ node ./nodejs-client/transcribe.mjs 5 | ./chatgpt-cli
 ```

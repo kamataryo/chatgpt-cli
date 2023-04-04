@@ -15,7 +15,7 @@ const main = async () => {
 
   const command = new SynthesizeSpeechCommand({
     Text: text,
-    VoiceId: 'Joanna',
+    VoiceId: 'Takumi',
     OutputFormat: 'mp3',
   })
   const { AudioStream: audioStream } = await pollyClient.send(command);
